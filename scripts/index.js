@@ -12,20 +12,23 @@ const elementPlase = document.querySelector(".places__list");
 const elementTemplate = document.querySelector("#card-template").content;
 
 initialCards.forEach(function (card) {
-  addCard(card, deleteCard);
+  elementPlase.append(createCard(card.name, card.link));
 });
 
-function addCard(data, deleteCard) {
+function createCard(name, link) {
   const cardElement = elementTemplate
     .querySelector(".places__item")
     .cloneNode(true);
   const deleteBotton = cardElement.querySelector(".card__delete-button");
-  cardElement.querySelector(".card__image").src = data.link;
-  cardElement.querySelector(".card__title").textContent = data.name;
+
+  cardElement.querySelector(".card__image").src = link;
+  cardElement.querySelector(".card__title").textContent = name;
+
   deleteBotton.addEventListener("click", () => {
     deleteCard(cardElement);
   });
-  elementPlase.append(cardElement);
+
+  return cardElement;
 }
 
 function deleteCard(cardElement) {
