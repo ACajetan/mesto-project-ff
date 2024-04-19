@@ -78,16 +78,14 @@ function addCardInList(evt) {
 
   closePopup(formNewCard);
 
-  //Немного не понял как тут использовать reset. Везде выдает ошибку. Делал так:
-  // nameCardInput.reset();
-  // urlCardInput.reset();
-
   nameCardInput.value = "";
   urlCardInput.value = "";
 }
 
 editButton.addEventListener("click", function () {
   openPopup(editPopup);
+  nameInput.value = newName.textContent;
+  jobInput.value = newJob.textContent;
 });
 addImageButton.addEventListener("click", function () {
   openPopup(formNewCard);
