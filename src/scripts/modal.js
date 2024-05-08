@@ -1,4 +1,7 @@
+import { clearValidation, enableOptions } from "./validation.js";
+
 export function openPopup(evt) {
+  clearValidation(evt, enableOptions);
   evt.classList.add("popup_is-opened");
   document.addEventListener("keydown", closePopupEsc);
   document.addEventListener("click", closePopupOverlay);
@@ -8,6 +11,14 @@ export function closePopup(evt) {
   evt.classList.remove("popup_is-opened");
   document.removeEventListener("keydown", closePopupEsc);
   document.removeEventListener("click", closePopupOverlay);
+}
+
+export function showSave(save, evt) {
+  if (save) {
+    evt.submitter.textContent = "Сохранение...";
+  } else {
+    evt.submitter.textContent = "Сохранить";
+  }
 }
 
 export function closePopupEsc(evt) {

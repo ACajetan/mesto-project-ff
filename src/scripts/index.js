@@ -1,7 +1,15 @@
 import "../pages/index.css";
 import { initialCards } from "./cards.js";
 import { deleteCard, createCard, likeCard } from "./card.js";
-import { openPopup, closePopup } from "./modal.js";
+import { openPopup, closePopup, showSave } from "./modal.js";
+import { enableValidation, enableOptions } from "./validation.js";
+import {
+  editProfileAPI,
+  addNewCardAPI,
+  editAvatrAPI,
+  requestCards,
+  requestUser,
+} from "./api.js";
 
 const elementPlase = document.querySelector(".places__list");
 const content = document.querySelector(".page");
@@ -10,38 +18,68 @@ const nameInput = formEditElement.querySelector(".popup__input_type_name");
 const jobInput = formEditElement.querySelector(
   ".popup__input_type_description"
 );
-const editPopup = content.querySelector(".popup_type_edit");
+const editAvatarPopup = content.querySelector(".popup_type_edit-avatar");
 const formNewCard = content.querySelector(".popup_type_new-card");
 const imagePopup = content.querySelector(".popup_type_image");
+const formNewAvatar = content.querySelector(".popup_type_avatar");
 const contentImage = imagePopup.querySelector(".popup__image");
 const captionImage = imagePopup.querySelector(".popup__caption");
 const nameCardInput = document.querySelector(".popup__input_type_card-name");
 const urlCardInput = document.querySelector(".popup__input_type_url");
-const newName = document.querySelector(".profile__title");
-const newJob = document.querySelector(".profile__description");
+const profileName = document.querySelector(".profile__title");
+const profileJob = document.querySelector(".profile__description");
+const profileImage = document.querySelector(".profile__image");
 const editButton = document.querySelector(".profile__edit-button");
 const addImageButton = document.querySelector(".profile__add-button");
 
-initialCards.forEach(appendCard);
-
-function appendCard(card) {
-  elementPlase.append(createCard(card, deleteCard, likeCard, showImageCard));
+function appendCard(res) {
+  res.forEach((card) => {
+    elementPlase.append(createCard(card, deleteCard, likeCard, showImageCard));
+  });
 }
 
 function editProfile(evt) {
   evt.preventDefault();
 
+  showSave(true, evt);
+
   const nameValue = nameInput.value;
   const jobValue = jobInput.value;
 
-  newName.textContent = nameValue;
-  newJob.textContent = jobValue;
+  profileName.textContent = nameValue;
+  profileJob.textContent = jobValue;
 
-  closePopup(editPopup);
-
-  nameInput.value = "";
-  jobInput.value = "";
+  editProfileAPI(nameValue, jobValue)
+    .then(() => {
+      showSave(false, evt), closePopup(formEditElement);
+      nameInput.value = "";
+      jobInput.value = "";
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
+formEditElement.addEventListener("submit", editProfile);
+
+function editAvatar(evt) {
+  showSave(true, evt);
+  evt.preventDefault();
+  const avatarValue = formNewAvatar.value;
+  editAvatrAPI(avatarValue)
+    .then(() => {
+      profileImage.style["background-image"] = `url(${avatarValue})`;
+    })
+    .finally(() => {
+      showSave(false, evt);
+      closePopup(editAvatarPopup);
+      formNewAvatar.value = "";
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+}
+
+editAvatarPopup.addEventListener("submit", editAvatar);
 
 function showImageCard(card) {
   contentImage.src = card.link;
@@ -57,6 +95,8 @@ function showImageCard(card) {
 function addCardInList(evt) {
   evt.preventDefault();
 
+  showSave(true, evt);
+
   const nameCardValue = nameCardInput.value;
   const urlCardValue = urlCardInput.value;
 
@@ -65,32 +105,56 @@ function addCardInList(evt) {
     link: urlCardValue,
   };
 
-  const newCardElement = createCard(
-    newPair,
-    deleteCard,
-    likeCard,
-    showImageCard
-  );
-
-  const firstCard = elementPlase.firstChild;
-
-  elementPlase.insertBefore(newCardElement, firstCard);
-
-  closePopup(formNewCard);
-
-  //Немного не понял как тут использовать reset. Везде выдает ошибку. Делал так:
-  // nameCardInput.reset();
-  // urlCardInput.reset();
-
-  nameCardInput.value = "";
-  urlCardInput.value = "";
+  addNewCardAPI(newPair.name, newPair.link)
+    .then((res) => {
+      showSave(false, evt);
+      closePopup(formNewCard);
+      nameCardInput.value = "";
+      urlCardInput.value = "";
+      return res.json();
+    })
+    .then((newPair) => {
+      const newCardElement = createCard(newPair, deleteCard, likeCard);
+      const firstCard = elementPlase.firstChild;
+      elementPlase.insertBefore(newCardElement, firstCard);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
 }
 
 editButton.addEventListener("click", function () {
-  openPopup(editPopup);
+  openPopup(formEditElement);
+  nameInput.value = profileName.textContent;
+  jobInput.value = profileJob.textContent;
 });
+
 addImageButton.addEventListener("click", function () {
   openPopup(formNewCard);
+  nameCardInput.value = "";
+  urlCardInput.value = "";
 });
-formEditElement.addEventListener("submit", editProfile);
+
+profileImage.addEventListener("click", function () {
+  formNewAvatar.value = "";
+  openPopup(editAvatarPopup);
+});
+
 formNewCard.addEventListener("submit", addCardInList);
+
+//-----------------------
+enableValidation(enableOptions);
+
+//-----------------------
+
+function refreshProfile(result) {
+  profileName.textContent = result.name;
+  profileJob.textContent = result.about;
+  profileImage.style.backgroundImage = `url(${result.avatar})`;
+  profileName.id = result._id;
+}
+
+Promise.all([requestUser(), requestCards()]).then(([user, newCard]) => {
+  refreshProfile(user);
+  appendCard(newCard);
+});
