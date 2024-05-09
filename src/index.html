@@ -109,54 +109,28 @@
           <p class="popup__caption"></p>
         </div>
       </div>
-      <div class="popup__content">
-        <button type="button" class="popup__close"></button>
-        <h3 class="popup__title">Редактировать профиль</h3>
-        <form class="popup__form" name="edit-profile" novalidate>
-          <input
-            type="text"
-            name="name"
-            class="popup__input popup__input_type_name"
-            placeholder="Имя"
-            id="name-input"
-            minlength="2"
-            maxlength="20"
-            required
-          />
-          <span class="name-input-error"></span>
-          <input
-            type="text"
-            name="description"
-            class="popup__input popup__input_type_url"
-            placeholder="Занятие"
-            id="description-input"
-            minlength="2"
-            maxlength="200"
-            required
-          />
-          <span class="description-input-error"></span>
-          <button type="submit" class="button popup__button">Сохранить</button>
-        </form>
+      <div class="popup popup_type_edit-avatar popup_is-animated">
+        <div class="popup__content">
+          <button type="button" class="popup__close"></button>
+          <h3 class="popup__title">Обновить аватар</h3>
+          <form class="popup__form" name="avatar">
+            <input
+              type="url"
+              name="avatar"
+              class="popup__input popup_type_avatar"
+              placeholder="Редактировать профиль"
+              id="avatar-input"
+              required
+            />
+            <span class="avatar-input-error"></span>
+            <button type="submit" class="button popup__button">
+              Сохранить
+            </button>
+          </form>
+        </div>
       </div>
     </div>
-    <div class="popup popup_type_edit-avatar popup_is-animated">
-      <div class="popup__content">
-        <button type="button" class="popup__close"></button>
-        <h3 class="popup__title">Обновить аватар</h3>
-        <form class="popup__form" name="avatar">
-          <input
-            type="url"
-            name="avatar"
-            class="popup__input popup_type_avatar"
-            placeholder="Редактировать профиль"
-            id="avatar-input"
-            required
-          />
-          <span class="avatar-input-error"></span>
-          <button type="submit" class="button popup__button">Сохранить</button>
-        </form>
-      </div>
-    </div>
+
     <template id="card-template">
       <li class="places__item card">
         <img class="card__image" src="" alt="" />

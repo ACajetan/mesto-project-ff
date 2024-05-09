@@ -47,13 +47,17 @@ function checkInputValidity(formElement, inputElement, options) {
     } else {
       hideError(formElement, inputElement, options);
     }
-  } else {
-    showError(
-      formElement,
-      inputElement,
-      inputElement.validationMessage,
-      options
-    );
+  } else if (inputElement.type === "url") {
+    if (!inputElement.validity.valid) {
+      showError(
+        formElement,
+        inputElement,
+        inputElement.validationMessage,
+        options
+      );
+    } else {
+      hideError(formElement, inputElement, options);
+    }
   }
 }
 

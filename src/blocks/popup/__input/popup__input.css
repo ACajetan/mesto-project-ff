@@ -26,6 +26,7 @@
 }
 
 .popup__input-error {
+  position: absolute;
   font-size: 12px;
   color: #ff0000;
   display: block;

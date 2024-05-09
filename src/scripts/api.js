@@ -17,14 +17,22 @@ export function requestCards() {
   return fetch(`${config.baseUrl}/cards`, {
     method: "GET",
     headers: config.headers,
-  }).then(handleResponse);
+  })
+    .then(handleResponse)
+    .catch((err) => {
+      console.log("Ошибка при получении информации о карточках: ", err);
+    });
 }
 
 export function requestUser() {
   return fetch(`${config.baseUrl}/users/me`, {
     method: "GET",
     headers: config.headers,
-  }).then(handleResponse);
+  })
+    .then(handleResponse)
+    .catch((err) => {
+      console.log("Ошибка при получении информации о пользователе: ", err);
+    });
 }
 
 export function editProfileAPI(name, about) {
@@ -35,7 +43,7 @@ export function editProfileAPI(name, about) {
       name: name,
       about: about,
     }),
-  });
+  }).then(handleResponse);
 }
 
 export function addNewCardAPI(name, link) {
@@ -47,28 +55,28 @@ export function addNewCardAPI(name, link) {
       name: name,
       link: link,
     }),
-  });
+  }).then(handleResponse);
 }
 
 export function deleteCardAPI(id) {
   return fetch(`${config.baseUrl}/cards/${id}`, {
     method: "DELETE",
     headers: config.headers,
-  });
+  }).then(handleResponse);
 }
 
 export function likeCardAPI(id) {
   return fetch(`${config.baseUrl}/cards/likes/${id}`, {
     method: "PUT",
     headers: config.headers,
-  });
+  }).then(handleResponse);
 }
 
 export function dislikeCardAPI(id) {
   return fetch(`${config.baseUrl}/cards/likes/${id}`, {
     method: "DELETE",
     headers: config.headers,
-  });
+  }).then(handleResponse);
 }
 
 export function editAvatrAPI(url) {

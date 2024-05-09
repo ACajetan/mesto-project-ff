@@ -1,8 +1,11 @@
 import "../pages/index.css";
-import { initialCards } from "./cards.js";
 import { deleteCard, createCard, likeCard } from "./card.js";
-import { openPopup, closePopup, showSave } from "./modal.js";
-import { enableValidation, enableOptions } from "./validation.js";
+import { openPopup, closePopup } from "./modal.js";
+import {
+  clearValidation,
+  enableValidation,
+  enableOptions,
+} from "./validation.js";
 import {
   editProfileAPI,
   addNewCardAPI,
@@ -32,31 +35,34 @@ const profileImage = document.querySelector(".profile__image");
 const editButton = document.querySelector(".profile__edit-button");
 const addImageButton = document.querySelector(".profile__add-button");
 
-function appendCard(res) {
+function appendCard(res, userId) {
   res.forEach((card) => {
-    elementPlase.append(createCard(card, deleteCard, likeCard, showImageCard));
+    elementPlase.append(
+      createCard(card, deleteCard, likeCard, showImageCard, userId)
+    );
   });
 }
 
 function editProfile(evt) {
   evt.preventDefault();
-
   showSave(true, evt);
 
   const nameValue = nameInput.value;
   const jobValue = jobInput.value;
 
-  profileName.textContent = nameValue;
-  profileJob.textContent = jobValue;
-
   editProfileAPI(nameValue, jobValue)
     .then(() => {
-      showSave(false, evt), closePopup(formEditElement);
+      profileName.textContent = nameValue;
+      profileJob.textContent = jobValue;
       nameInput.value = "";
       jobInput.value = "";
+      closePopup(formEditElement);
     })
     .catch((err) => {
       console.log(err);
+    })
+    .finally(() => {
+      showSave(false, evt);
     });
 }
 formEditElement.addEventListener("submit", editProfile);
@@ -68,14 +74,14 @@ function editAvatar(evt) {
   editAvatrAPI(avatarValue)
     .then(() => {
       profileImage.style["background-image"] = `url(${avatarValue})`;
-    })
-    .finally(() => {
-      showSave(false, evt);
       closePopup(editAvatarPopup);
       formNewAvatar.value = "";
     })
     .catch((err) => {
       console.log(err);
+    })
+    .finally(() => {
+      showSave(false, evt);
     });
 }
 
@@ -85,11 +91,7 @@ function showImageCard(card) {
   contentImage.src = card.link;
   contentImage.alt = card.name;
   captionImage.textContent = card.name;
-  content.addEventListener("click", function (evt) {
-    if (evt.target.classList.contains("card__image")) {
-      openPopup(imagePopup);
-    }
-  });
+  openPopup(imagePopup);
 }
 
 function addCardInList(evt) {
@@ -107,37 +109,48 @@ function addCardInList(evt) {
 
   addNewCardAPI(newPair.name, newPair.link)
     .then((res) => {
-      showSave(false, evt);
       closePopup(formNewCard);
       nameCardInput.value = "";
       urlCardInput.value = "";
-      return res.json();
+      return res;
     })
     .then((newPair) => {
-      const newCardElement = createCard(newPair, deleteCard, likeCard);
+      const newCardElement = createCard(
+        newPair,
+        deleteCard,
+        likeCard,
+        showImageCard,
+        newPair.owner._id
+      );
       const firstCard = elementPlase.firstChild;
       elementPlase.insertBefore(newCardElement, firstCard);
     })
     .catch((err) => {
       console.log(err);
+    })
+    .finally(() => {
+      showSave(false, evt);
     });
 }
 
 editButton.addEventListener("click", function () {
+  clearValidation(formEditElement, enableOptions);
   openPopup(formEditElement);
   nameInput.value = profileName.textContent;
   jobInput.value = profileJob.textContent;
 });
 
 addImageButton.addEventListener("click", function () {
+  clearValidation(formNewCard, enableOptions);
   openPopup(formNewCard);
   nameCardInput.value = "";
   urlCardInput.value = "";
 });
 
 profileImage.addEventListener("click", function () {
-  formNewAvatar.value = "";
+  clearValidation(editAvatarPopup, enableOptions);
   openPopup(editAvatarPopup);
+  formNewAvatar.value = "";
 });
 
 formNewCard.addEventListener("submit", addCardInList);
@@ -147,14 +160,26 @@ enableValidation(enableOptions);
 
 //-----------------------
 
-function refreshProfile(result) {
-  profileName.textContent = result.name;
-  profileJob.textContent = result.about;
-  profileImage.style.backgroundImage = `url(${result.avatar})`;
-  profileName.id = result._id;
+function refreshProfile(res) {
+  profileName.textContent = res.name;
+  profileJob.textContent = res.about;
+  profileImage.style.backgroundImage = `url(${res.avatar})`;
+  profileName.id = res._id;
 }
 
-Promise.all([requestUser(), requestCards()]).then(([user, newCard]) => {
-  refreshProfile(user);
-  appendCard(newCard);
-});
+function showSave(save, evt) {
+  if (save) {
+    evt.submitter.textContent = "Сохранение...";
+  } else {
+    evt.submitter.textContent = "Сохранить";
+  }
+}
+
+Promise.all([requestUser(), requestCards()])
+  .then(([user, newCard]) => {
+    refreshProfile(user);
+    appendCard(newCard, user._id);
+  })
+  .catch((err) => {
+    console.log("Ошибка: ", err);
+  });
