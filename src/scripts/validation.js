@@ -1,11 +1,4 @@
-export const enableOptions = {
-  formSelector: ".popup__form",
-  inputSelector: ".popup__input",
-  submitButtonSelector: ".popup__button",
-  inactiveButtonClass: "popup__button_disabled",
-  inputErrorClass: "popup__input_type_error",
-  errorClass: "popup__input-error",
-};
+const nameRegex = /^[a-zA-Zа-яА-ЯёЁ\s-]*$/;
 
 function showError(formElement, inputElement, errorMessage, options) {
   const errorElement = formElement.querySelector(`.${inputElement.id}-error`);
@@ -22,8 +15,6 @@ function hideError(formElement, inputElement, options) {
 }
 
 function checkInputValidity(formElement, inputElement, options) {
-  const nameRegex = /^[a-zA-Zа-яА-ЯёЁ\s-]+$/;
-
   if (inputElement.type === "text") {
     if (!inputElement.validity.valid || !nameRegex.test(inputElement.value)) {
       if (
@@ -89,14 +80,22 @@ export function enableValidation(options) {
 
 function hasInvalidInput(inputList) {
   return inputList.some((inputElement) => {
-    return !inputElement.validity.valid;
+    if (inputElement.type === "text") {
+      return (
+        !inputElement.validity.valid || !nameRegex.test(inputElement.value)
+      );
+    } else {
+      return !inputElement.validity.valid;
+    }
   });
 }
 
 function toggleButtonState(inputList, buttonElement, options) {
   if (hasInvalidInput(inputList)) {
+    buttonElement.disabled = true;
     buttonElement.classList.add(options.inactiveButtonClass);
   } else {
+    buttonElement.disabled = false;
     buttonElement.classList.remove(options.inactiveButtonClass);
   }
 }

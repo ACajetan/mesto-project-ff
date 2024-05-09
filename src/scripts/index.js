@@ -1,11 +1,7 @@
 import "../pages/index.css";
 import { deleteCard, createCard, likeCard } from "./card.js";
 import { openPopup, closePopup } from "./modal.js";
-import {
-  clearValidation,
-  enableValidation,
-  enableOptions,
-} from "./validation.js";
+import { clearValidation, enableValidation } from "./validation.js";
 import {
   editProfileAPI,
   addNewCardAPI,
@@ -35,6 +31,15 @@ const profileImage = document.querySelector(".profile__image");
 const editButton = document.querySelector(".profile__edit-button");
 const addImageButton = document.querySelector(".profile__add-button");
 
+const enableOptions = {
+  formSelector: ".popup__form",
+  inputSelector: ".popup__input",
+  submitButtonSelector: ".popup__button",
+  inactiveButtonClass: "popup__button_disabled",
+  inputErrorClass: "popup__input_type_error",
+  errorClass: "popup__input-error",
+};
+
 function appendCard(res, userId) {
   res.forEach((card) => {
     elementPlase.append(
@@ -59,7 +64,7 @@ function editProfile(evt) {
       closePopup(formEditElement);
     })
     .catch((err) => {
-      console.log(err);
+      console.log("Ошибка: ", err);
     })
     .finally(() => {
       showSave(false, evt);
@@ -78,7 +83,7 @@ function editAvatar(evt) {
       formNewAvatar.value = "";
     })
     .catch((err) => {
-      console.log(err);
+      console.log("Ошибка: ", err);
     })
     .finally(() => {
       showSave(false, evt);
@@ -126,7 +131,7 @@ function addCardInList(evt) {
       elementPlase.insertBefore(newCardElement, firstCard);
     })
     .catch((err) => {
-      console.log(err);
+      console.log("Ошибка: ", err);
     })
     .finally(() => {
       showSave(false, evt);
@@ -165,6 +170,7 @@ function refreshProfile(res) {
   profileJob.textContent = res.about;
   profileImage.style.backgroundImage = `url(${res.avatar})`;
   profileName.id = res._id;
+  console.log(res._id);
 }
 
 function showSave(save, evt) {
@@ -177,8 +183,8 @@ function showSave(save, evt) {
 
 Promise.all([requestUser(), requestCards()])
   .then(([user, newCard]) => {
-    refreshProfile(user);
-    appendCard(newCard, user._id);
+    refreshProfile(user)
+    appendCard(newCard, user._id)
   })
   .catch((err) => {
     console.log("Ошибка: ", err);

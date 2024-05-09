@@ -56,7 +56,7 @@ export function likeCard(evt, card, like) {
         like.textContent = result.likes.length;
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Ошибка: ", err);
       });
   } else {
     dislikeCardAPI(card._id)
@@ -65,12 +65,17 @@ export function likeCard(evt, card, like) {
         like.textContent = result.likes.length;
       })
       .catch((err) => {
-        console.log(err);
+        console.log("Ошибка: ", err);
       });
   }
 }
 
 export function deleteCard(cardElement) {
-  cardElement.remove();
-  deleteCardAPI(cardElement.id);
+  deleteCardAPI(cardElement.id)
+    .then(() => {
+      cardElement.remove();
+    })
+    .catch((err) => {
+      console.log("Ошибка: ", err);
+    });
 }

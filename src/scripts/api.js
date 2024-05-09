@@ -17,22 +17,14 @@ export function requestCards() {
   return fetch(`${config.baseUrl}/cards`, {
     method: "GET",
     headers: config.headers,
-  })
-    .then(handleResponse)
-    .catch((err) => {
-      console.log("Ошибка при получении информации о карточках: ", err);
-    });
+  }).then(handleResponse);
 }
 
 export function requestUser() {
   return fetch(`${config.baseUrl}/users/me`, {
     method: "GET",
     headers: config.headers,
-  })
-    .then(handleResponse)
-    .catch((err) => {
-      console.log("Ошибка при получении информации о пользователе: ", err);
-    });
+  }).then(handleResponse);
 }
 
 export function editProfileAPI(name, about) {
